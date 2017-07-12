@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="so.sao.dao.OrderMapper">
+
+    <resultMap id="orderResultMap" type="so.sao.domain.Order">
+        <id property="id" column="order_id"/>
+        <result property="stute" column="order_stute"/>
+        <result property="orderTime" column="order_longtime"/>
+        <result property="orderPrice" column="order_money"/>
+        <result property="consignee" column="order_consignee"/>
+        <result property="phone" column="order_phone"/>
+        <association property="orderDetails" resultMap="orderDetailsResultMap" />
+    </resultMap>
+    <resultMap id="orderDetailsResultMap" type="so.sao.domain.OrderDetails">
+        <id property="orderDetailid" column="details_id"/>
+        <result property="commodityId" column="commodity_id"/>
+        <result property="commodityName" column="commodity_name"/>
+        <result property="commodityPrice" column="commodity_price"/>
+        <result property="orderNumber" column="order_number"/>
+        <result property="orderId" column="order_id"/>
+    </resultMap>
+
+    <select id="findOrders" resultMap="orderResultMap" >
+        SELECT
+            o.order_id,
+            o.order_stute,
+            o.order_longtime,
+            o.order_money,
+            o.order_consignee,
+            o.order_phone,
+            d.details_id,
+            d.commodity_id,
+            d.commodity_name,
+            d.commodity_price,
+            d.order_number
+        FROM  tb_order o LEFT JOIN tb_order_details d ON o.order_id=d.order_id
+        <where>
+            <if test="stute != null">
+                o.order_stute = #{stute}
+            </if>
+            <if test="orderId != null">
+                AND d.order_id = #{orderId}
+            </if>
+        </where>
+    </select>
+
+    <update id="update"  parameterType="so.sao.domain.Order">
+        UPDATE tb_order
+        <trim prefix="set" suffixOverrides=",">
+            <if test="stute!=null">order_stute=#{stute},</if>
+            <if test="orderTime!=null">order_longtime=#{orderTime},</if>
+            <if test="orderPrice!=null">order_money=#{orderPrice},</if>
+            <if test="consignee!=null">order_consignee=#{consignee},</if>
+            <if test="phone!=null">order_phone=#{phone},</if>
+        </trim>
+        WHERE order_id=#{id}
+    </update>
+
+    <select id="findOrder" resultMap="orderResultMap">
+        SELECT
+            order_id,
+            order_stute,
+            order_longtime,
+            order_money,
+            order_consignee,
+            order_phone
+        FROM tb_order
+        WHERE order_id=#{orderId}
+    </select>
+
+</mapper>
+
